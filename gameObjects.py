@@ -3,6 +3,26 @@ from collections import namedtuple
 
 Location = namedtuple('Location', ['row', 'col'])
 
+class Button(pygame.Rect):
+    def __init__(self, left, top, width, height):
+        super(Button, self).__init__(left, top, width, height)
+        self.state = False
+        self.stateChanged = True
+
+    def press(self):
+        self.state = not self.state
+        self.stateChanged = True
+
+    def get_changed(self):
+        return self.stateChanged
+
+    def get_state(self):
+        return self.state
+    
+    def reset_changed(self):
+        self.stateChanged = False
+
+
 class Cell(pygame.Rect):
     def __init__(self, left, top, width, height, loc):
         super(Cell, self).__init__(left, top, width, height)
@@ -37,3 +57,14 @@ class Grid:
 
     def revive(self, row, col):
         self.states[row][col] = True
+
+    def get_left(self):
+        return 0 
+
+    def get_bottom(self):
+        return self.size*self.cellSize 
+    
+    def get_right(self):
+        return self.size*self.cellSize 
+
+

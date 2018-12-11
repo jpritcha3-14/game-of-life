@@ -1,6 +1,6 @@
 import pygame
 from collections import deque
-from gameObjects import Grid
+from gameObjects import Grid, Button
 
 if not pygame.mixer:
     print('Warning, sound disabled')
@@ -24,6 +24,7 @@ def main():
     run = False 
     cellUpdateQueue = deque()
     grid = Grid(20, 10, cellUpdateQueue)
+    startStopButton = Button((grid.get_left() + grid.get_right()) // 2 - 50 // 2, grid.get_bottom() + 10, 50, 20)
     killFirst = False
 
     # Create Background 
@@ -31,9 +32,9 @@ def main():
     background.fill(BLUE)
 
     while True:
-        while not run:
-            clock.tick(clocktime) 
-            
+        clock.tick(clocktime) 
+
+        if not run:
             # Handle Events
             for event in pygame.event.get():
                 if (event.type == pygame.QUIT):
@@ -45,8 +46,10 @@ def main():
                         grid.toggleAlive(row, col) 
                         cellUpdateQueue.appendleft(grid.getCell(row, col))
                     grid.dragCells.clear()
+                    if startStopButton.collidepoint(event.pos):
+                        startStopButton.press()
                 if (event.type == pygame.MOUSEMOTION):
-                    print(event.pos, event.rel, event.buttons)
+                    #print(event.pos, event.rel, event.buttons)
                     if event.buttons[0]:
                         row = event.pos[1] // grid.cellSize
                         col = event.pos[0] // grid.cellSize
@@ -59,16 +62,24 @@ def main():
                             cellUpdateQueue.appendleft(grid.getCell(row, col))
 
                         
-            # Draw updated cells
-            while cellUpdateQueue:
-                curCell = cellUpdateQueue.pop()
-                print(curCell.loc)
-                color = GREEN if grid.getState(*curCell.loc) else RED
-                pygame.draw.rect(background, color, curCell)
+        # Draw updated cells
+        while cellUpdateQueue:
+            curCell = cellUpdateQueue.pop()
+            color = GREEN if grid.getState(*curCell.loc) else RED
+            pygame.draw.rect(background, color, curCell)
 
-            # Display background
-            screen.blit(background, (0,0))
-            pygame.display.flip()
+
+        # Check and draw startStopButton
+        if startStopButton.get_changed():
+            startStopButton.reset_changed()
+            curState = startStopButton.get_state()
+            #run = curState
+            color = RED if curState else GREEN
+            pygame.draw.rect(background, color, startStopButton)
+
+        # Display background
+        screen.blit(background, (0,0))
+        pygame.display.flip()
 
 if __name__ == '__main__':
     while(main()):
