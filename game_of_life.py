@@ -19,6 +19,7 @@ def main():
     pygame.display.set_caption('Game Of Life')
     pygame.mouse.set_visible(1)
     clocktime = 60
+    speed = 10
     clock = pygame.time.Clock()
 
     run = False 
@@ -32,9 +33,9 @@ def main():
     background.fill(BLUE)
 
     while True:
-        clock.tick(clocktime) 
-
         if not run:
+            clock.tick(clocktime) 
+
             # Handle Events
             for event in pygame.event.get():
                 if (event.type == pygame.QUIT):
@@ -60,6 +61,18 @@ def main():
                             grid.dragCells.add((row, col))
                             grid.kill(row, col) if killFirst else grid.revive(row, col)
                             cellUpdateQueue.appendleft(grid.getCell(row, col))
+        else:
+            clock.tick(speed)
+
+            # Handle events
+            for event in pygame.event.get():
+                if (event.type == pygame.QUIT):
+                    return False
+                if (event.type == pygame.MOUSEBUTTONUP):
+                    if startStopButton.collidepoint(event.pos):
+                        startStopButton.press()
+            
+            cellUpdateQueue.extendleft(grid.next_generation())
 
                         
         # Draw updated cells
@@ -72,9 +85,8 @@ def main():
         # Check and draw startStopButton
         if startStopButton.get_changed():
             startStopButton.reset_changed()
-            curState = startStopButton.get_state()
-            #run = curState
-            color = RED if curState else GREEN
+            run = startStopButton.get_state()
+            color = RED if run else GREEN
             pygame.draw.rect(background, color, startStopButton)
 
         # Display background

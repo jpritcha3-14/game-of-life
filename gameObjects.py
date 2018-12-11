@@ -67,4 +67,22 @@ class Grid:
     def get_right(self):
         return self.size*self.cellSize 
 
-
+    def next_generation(self):
+        nextGen = [[False for _ in range(self.size)] for _ in range(self.size)]
+        updatedCells = []
+        for row in range(self.size):
+            for col in range(self.size):
+                neighbors = sum((self.states[row-1][col-1], 
+                                self.states[row-1][col],
+                                self.states[row-1][(col + 1) % self.size], 
+                                self.states[row][col-1],
+                                self.states[row][(col + 1) % self.size], 
+                                self.states[(row + 1) % self.size][col-1],
+                                self.states[(row + 1) % self.size][col], 
+                                self.states[(row + 1) % self.size][(col + 1) % self.size]))
+                if (self.states[row][col] and neighbors == 2) or neighbors == 3:
+                    nextGen[row][col] = True    
+                if self.states[row][col] != nextGen[row][col]:
+                    updatedCells.append(self.cells[row][col])
+        self.states = nextGen
+        return updatedCells
