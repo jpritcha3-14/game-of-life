@@ -1,6 +1,6 @@
 import pygame
 from collections import deque
-from gameObjects import Cell, Grid
+from gameObjects import Grid
 
 if not pygame.mixer:
     print('Warning, sound disabled')
@@ -24,7 +24,6 @@ def main():
     run = False 
     cellUpdateQueue = deque()
     grid = Grid(20, 10, cellUpdateQueue)
-    dragCells = set()
     killFirst = False
 
     # Create Background 
@@ -42,28 +41,29 @@ def main():
                 if (event.type == pygame.MOUSEBUTTONUP):
                     row = event.pos[1] // grid.cellSize
                     col = event.pos[0] // grid.cellSize
-                    if row < grid.size and col < grid.size and (row, col) not in dragCells:
-                        grid.cells[row][col].toggleAlive() 
-                        cellUpdateQueue.appendleft(grid.cells[row][col])
-                    dragCells.clear()
+                    if row < grid.size and col < grid.size and (row, col) not in grid.dragCells:
+                        grid.toggleAlive(row, col) 
+                        cellUpdateQueue.appendleft(grid.getCell(row, col))
+                    grid.dragCells.clear()
                 if (event.type == pygame.MOUSEMOTION):
                     print(event.pos, event.rel, event.buttons)
                     if event.buttons[0]:
                         row = event.pos[1] // grid.cellSize
                         col = event.pos[0] // grid.cellSize
-                        if row < grid.size and col < grid.size and (row, col) not in dragCells:
-                            curCell = grid.cells[row][col]
-                            if not dragCells:
-                                killFirst = curCell.alive
-                            dragCells.add((row, col))
-                            curCell.kill() if killFirst else curCell.revive()
-                            cellUpdateQueue.appendleft(grid.cells[row][col])
+                        if row < grid.size and col < grid.size and (row, col) not in grid.dragCells:
+                            curState = grid.getState(row, col)
+                            if not grid.dragCells:
+                                killFirst = curState 
+                            grid.dragCells.add((row, col))
+                            grid.kill(row, col) if killFirst else grid.revive(row, col)
+                            cellUpdateQueue.appendleft(grid.getCell(row, col))
 
                         
             # Draw updated cells
             while cellUpdateQueue:
                 curCell = cellUpdateQueue.pop()
-                color = GREEN if curCell.alive else RED
+                print(curCell.loc)
+                color = GREEN if grid.getState(*curCell.loc) else RED
                 pygame.draw.rect(background, color, curCell)
 
             # Display background
