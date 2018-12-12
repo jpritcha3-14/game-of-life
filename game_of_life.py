@@ -10,6 +10,8 @@ if not pygame.font:
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
 BLUE = (0, 0, 255)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
 
 def main():
     # Initialize Everything
@@ -24,8 +26,12 @@ def main():
 
     run = False 
     cellUpdateQueue = deque()
-    grid = Grid(20, 10, cellUpdateQueue)
-    startStopButton = Button((grid.get_left() + grid.get_right()) // 2 - 50 // 2, grid.get_bottom() + 10, 50, 20)
+    gridWidth = 40
+    cellWidth = 10
+    offset = (500 - gridWidth*cellWidth) // 2
+    grid = Grid(gridWidth, cellWidth, offset, cellUpdateQueue)
+    startStopButton = Button((grid.get_left() + grid.get_right()) // 2 - 50 //
+            2 + offset, grid.get_bottom() + 10 + offset, 50, 20)
     killFirst = False
 
     # Create Background 
@@ -41,19 +47,20 @@ def main():
                 if (event.type == pygame.QUIT):
                     return False
                 if (event.type == pygame.MOUSEBUTTONUP):
-                    row = event.pos[1] // grid.cellSize
-                    col = event.pos[0] // grid.cellSize
-                    if row < grid.size and col < grid.size and (row, col) not in grid.dragCells:
-                        grid.toggleAlive(row, col) 
-                        cellUpdateQueue.appendleft(grid.getCell(row, col))
-                    grid.dragCells.clear()
+                    if grid.area.collidepoint(event.pos):
+                        row = (event.pos[1] - offset) // grid.cellSize
+                        col = (event.pos[0] - offset) // grid.cellSize
+                        if row < grid.size and col < grid.size and (row, col) not in grid.dragCells:
+                            grid.toggleAlive(row, col) 
+                            cellUpdateQueue.appendleft(grid.getCell(row, col))
+                        grid.dragCells.clear()
                     if startStopButton.collidepoint(event.pos):
                         startStopButton.press()
                 if (event.type == pygame.MOUSEMOTION):
                     #print(event.pos, event.rel, event.buttons)
-                    if event.buttons[0]:
-                        row = event.pos[1] // grid.cellSize
-                        col = event.pos[0] // grid.cellSize
+                    if grid.area.collidepoint(event.pos) and  event.buttons[0]:
+                        row = (event.pos[1] - offset) // grid.cellSize
+                        col = (event.pos[0] - offset) // grid.cellSize
                         if row < grid.size and col < grid.size and (row, col) not in grid.dragCells:
                             curState = grid.getState(row, col)
                             if not grid.dragCells:
@@ -78,7 +85,7 @@ def main():
         # Draw updated cells
         while cellUpdateQueue:
             curCell = cellUpdateQueue.pop()
-            color = GREEN if grid.getState(*curCell.loc) else RED
+            color = BLACK if grid.getState(*curCell.loc) else WHITE
             pygame.draw.rect(background, color, curCell)
 
 
@@ -86,11 +93,11 @@ def main():
         if startStopButton.get_changed():
             startStopButton.reset_changed()
             run = startStopButton.get_state()
-            color = RED if run else GREEN
+            color = RED if run else BLACK
             pygame.draw.rect(background, color, startStopButton)
 
         # Display background
-        screen.blit(background, (0,0))
+        screen.blit(background, (0, 0))
         pygame.display.flip()
 
 if __name__ == '__main__':

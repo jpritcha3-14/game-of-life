@@ -28,19 +28,18 @@ class Cell(pygame.Rect):
         super(Cell, self).__init__(left, top, width, height)
         self.loc = loc
 
-
 class Grid:
-    def __init__(self, size, cellSize, cellUpdateQueue):
+    def __init__(self, size, cellSize, offset, cellUpdateQueue):
         self.size = size
         self.cellSize = cellSize
+        self.area = pygame.Rect(offset, offset, size*cellSize, size*cellSize)
         self.dragCells = set()
         self.cells = [[] for _ in range(size)]
         self.states = [[False for _ in range(size)] for _ in range(size)]
         for i in range(size**2):
             row = i // size
             col = i % size
-            self.cells[row].append(Cell(col*cellSize, row*cellSize, cellSize,
-                cellSize, Location(row, col)))
+            self.cells[row].append(Cell(col*cellSize + offset, row*cellSize + offset, cellSize, cellSize, Location(row, col)))
             cellUpdateQueue.append(self.cells[row][col])
 
     def getState(self, row, col):
