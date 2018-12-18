@@ -2,12 +2,27 @@ import pygame
 from collections import namedtuple
 
 Location = namedtuple('Location', ['row', 'col'])
+pygame.font.init()
+font = pygame.font.Font(None, 30)
+RED = (255, 0, 0)
+WHITE = (255, 255, 255)
 
-class Button(pygame.Rect):
-    def __init__(self, left, top, width, height):
-        super(Button, self).__init__(left, top, width, height)
+class Button(pygame.Surface):
+    def __init__(self, left, top, width, height, text='', color=RED):
+        super(Button, self).__init__((width, height))
+        self.area = pygame.Rect(left, top, width, height)
         self.state = False
         self.stateChanged = True
+        self.left = left
+        self.top = top
+        self.update(color, text)
+
+    def update(self, color, text):
+        self.fill(color)
+        textSurf = font.render(text, False, WHITE)
+        horizOffset = abs(self.get_width() - textSurf.get_width()) // 2
+        vertOffset = abs(self.get_height() - textSurf.get_height()) // 2
+        self.blit(textSurf, (horizOffset, vertOffset))
 
     def press(self):
         self.state = not self.state

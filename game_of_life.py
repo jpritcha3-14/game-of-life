@@ -9,7 +9,7 @@ if not pygame.font:
 
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
+GREY = (128, 128, 128)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 
@@ -30,13 +30,12 @@ def main():
     cellWidth = 10
     offset = (500 - gridWidth*cellWidth) // 2
     grid = Grid(gridWidth, cellWidth, offset, cellUpdateQueue)
-    startStopButton = Button((grid.get_left() + grid.get_right()) // 2 - 50 //
-            2 + offset, grid.get_bottom() + 10 + offset, 50, 20)
+    startStopButton = Button((grid.get_left() + grid.get_right()) // 2 - (75 // 2) + offset, grid.get_bottom() + 10 + offset, 75, 30)
     killFirst = False
 
     # Create Background 
     background = pygame.Surface((500, 500))
-    background.fill(BLUE)
+    background.fill(GREY)
 
     while True:
         if not run:
@@ -54,7 +53,7 @@ def main():
                             grid.toggleAlive(row, col) 
                             cellUpdateQueue.appendleft(grid.getCell(row, col))
                         grid.dragCells.clear()
-                    if startStopButton.collidepoint(event.pos):
+                    if startStopButton.area.collidepoint(event.pos):
                         startStopButton.press()
                 if (event.type == pygame.MOUSEMOTION):
                     #print(event.pos, event.rel, event.buttons)
@@ -76,7 +75,7 @@ def main():
                 if (event.type == pygame.QUIT):
                     return False
                 if (event.type == pygame.MOUSEBUTTONUP):
-                    if startStopButton.collidepoint(event.pos):
+                    if startStopButton.area.collidepoint(event.pos):
                         startStopButton.press()
             
             cellUpdateQueue.extendleft(grid.next_generation())
@@ -93,8 +92,8 @@ def main():
         if startStopButton.get_changed():
             startStopButton.reset_changed()
             run = startStopButton.get_state()
-            color = RED if run else BLACK
-            pygame.draw.rect(background, color, startStopButton)
+            startStopButton.update(RED if run else BLACK, 'STOP' if run else 'START')
+            background.blit(startStopButton, (startStopButton.left, startStopButton.top))
 
         # Display background
         screen.blit(background, (0, 0))
