@@ -36,8 +36,7 @@ class Button(pygame.Surface):
     
     def reset_changed(self):
         self.stateChanged = False
-
-
+        
 class Cell(pygame.Rect):
     def __init__(self, left, top, width, height, loc):
         super(Cell, self).__init__(left, top, width, height)
@@ -80,6 +79,10 @@ class Grid:
     
     def get_right(self):
         return self.size*self.cellSize 
+
+    def clear(self):
+        self.states = [[False for _ in range(self.size)] for _ in range(self.size)]
+        return [cell for row in self.cells for cell in row]
 
     def next_generation(self):
         nextGen = [[False for _ in range(self.size)] for _ in range(self.size)]

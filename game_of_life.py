@@ -20,7 +20,7 @@ def main():
     screen = pygame.display.set_mode((500, 500))
     pygame.display.set_caption('Game Of Life')
     pygame.mouse.set_visible(1)
-    clocktime = 60
+    clocktime = 120 
     speed = 10
     clock = pygame.time.Clock()
 
@@ -30,12 +30,17 @@ def main():
     cellWidth = 10
     offset = (500 - gridWidth*cellWidth) // 2
     grid = Grid(gridWidth, cellWidth, offset, cellUpdateQueue)
-    startStopButton = Button((grid.get_left() + grid.get_right()) // 2 - (75 // 2) + offset, grid.get_bottom() + 10 + offset, 75, 30)
+    startStopButton = Button((grid.get_left() + grid.get_right()) // 2 - (75 // 2) + offset, 
+                              grid.get_bottom() + 10 + offset, 75, 30)
+    clearButton = Button(startStopButton.left + startStopButton.get_width() + 10, 
+                         startStopButton.top, 75, 30, 'CLEAR', BLACK)
     killFirst = False
 
     # Create Background 
     background = pygame.Surface((500, 500))
     background.fill(GREY)
+    background.blit(startStopButton, (startStopButton.left, startStopButton.top))
+    background.blit(clearButton, (clearButton.left, clearButton.top))
 
     while True:
         if not run:
@@ -55,6 +60,8 @@ def main():
                         grid.dragCells.clear()
                     if startStopButton.area.collidepoint(event.pos):
                         startStopButton.press()
+                    if clearButton.area.collidepoint(event.pos):
+                        clearButton.press()
                 if (event.type == pygame.MOUSEMOTION):
                     #print(event.pos, event.rel, event.buttons)
                     if grid.area.collidepoint(event.pos) and  event.buttons[0]:
@@ -77,6 +84,9 @@ def main():
                 if (event.type == pygame.MOUSEBUTTONUP):
                     if startStopButton.area.collidepoint(event.pos):
                         startStopButton.press()
+                    if clearButton.area.collidepoint(event.pos):
+                        clearButton.press()
+                        startStopButton.press()
             
             cellUpdateQueue.extendleft(grid.next_generation())
 
@@ -87,6 +97,11 @@ def main():
             color = BLACK if grid.getState(*curCell.loc) else WHITE
             pygame.draw.rect(background, color, curCell)
 
+        # Check clearButton
+        if clearButton.get_changed():
+            clearButton.reset_changed()
+            cellUpdateQueue.clear()
+            cellUpdateQueue.extend(grid.clear())
 
         # Check and draw startStopButton
         if startStopButton.get_changed():
@@ -94,6 +109,8 @@ def main():
             run = startStopButton.get_state()
             startStopButton.update(RED if run else BLACK, 'STOP' if run else 'START')
             background.blit(startStopButton, (startStopButton.left, startStopButton.top))
+
+        
 
         # Display background
         screen.blit(background, (0, 0))

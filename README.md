@@ -16,7 +16,8 @@ It can be installed via pip:
 
 ## Instructions
 + Click the board to change the state of an individual cell.
-+ Click and drag to change states of multiple cells.
++ Click and drag on the board to change states of multiple cells.
 	+ To seed cells, start click and drag on a dead cell.
 	+ To kill cells, start click and drag on a live cell.
 + Click the start button to begin the game, press it again to stop.
++ Click the clear button to clear the board and stop the game.
