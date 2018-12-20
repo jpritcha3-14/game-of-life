@@ -8,18 +8,19 @@ RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 
 class Button(pygame.Surface):
-    def __init__(self, left, top, width, height, text='', color=RED):
+    def __init__(self, left, top, width, height, text='', color=RED, textColor=WHITE):
         super(Button, self).__init__((width, height))
         self.area = pygame.Rect(left, top, width, height)
         self.state = False
         self.stateChanged = True
         self.left = left
         self.top = top
+        self.textColor = textColor
         self.update(color, text)
 
     def update(self, color, text):
         self.fill(color)
-        textSurf = font.render(text, False, WHITE)
+        textSurf = font.render(text, False, self.textColor)
         horizOffset = abs(self.get_width() - textSurf.get_width()) // 2
         vertOffset = abs(self.get_height() - textSurf.get_height()) // 2
         self.blit(textSurf, (horizOffset, vertOffset))
