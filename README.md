@@ -21,3 +21,4 @@ It can be installed via pip:
 	+ To kill cells, start click and drag on a live cell.
 + Click the start button to begin the game, press it again to stop.
 + Click the clear button to clear the board and stop the game.
++ Click the + and - buttons to adjust the speed of the game. 
